@@ -9,14 +9,13 @@ public class Menu {
     private Scanner scanner;
     private BankFunctions bankFunctions;
     private LoanCalculator loanCalculator;
-    private MortgageCalculator mortgageCalculator;
     private DeleteAccount deleteAccount;
 
     public Menu() {
         this.scanner = new Scanner(System.in);
         this.bankFunctions = new BankFunctions();
         this.loanCalculator = new LoanCalculator("accounts.txt");
-        this.mortgageCalculator = new MortgageCalculator();
+
         this.deleteAccount = new DeleteAccount(bankFunctions);
     }
 
@@ -237,8 +236,6 @@ public class Menu {
                     loanCalculator.calculateMoneyLoan();
                     break;
                 case "7":
-                    // Call mortgage calculator method in CalculatoreMortgage.
-                    mortgageCalculator.calculateMortage();
                     break;
                 case "8":
                     // Call calculate exchange method in CurrencyExchange.

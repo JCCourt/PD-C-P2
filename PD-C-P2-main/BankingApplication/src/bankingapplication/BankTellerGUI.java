@@ -52,3 +52,22 @@ public class BankTellerGUI extends JFrame {
         SwingUtilities.invokeLater(() -> new BankTellerGUI().setVisible(true));
     }
 }
+
+/*
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class BookStoreMain {
+
+    public static void main(String[] args) throws SQLException {
+
+        BookStore bookstore = new BookStore();
+        bookstore.createPromotionTable();
+        ResultSet rs = bookstore.getWeekSpecial();
+        bookstore.createWeekSpecialTable(rs);
+
+    }
+}
+
+*/
