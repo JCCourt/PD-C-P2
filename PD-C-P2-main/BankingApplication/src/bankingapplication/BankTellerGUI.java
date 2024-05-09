@@ -4,7 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class BankTellerGUI extends JFrame {
-    //card layout to switch between different panels
+
+    //card layouts variable to switch between different panels
     private JPanel cardPanel;
     private CardLayout cardLayout;
 
@@ -27,18 +28,23 @@ public class BankTellerGUI extends JFrame {
         //add main card panel center
         add(cardPanel, BorderLayout.CENTER);
 
-        //main panel buttons
+        //Button Instanciations
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JButton homeButton = new JButton("Home");
         JButton accountsButton = new JButton("Accounts");
-        JButton currencyExchangeButton = new JButton("Currency Exchange");
+        JButton currencyExchangeButton = new CurrencyExchangeGUI(this, cardPanel, cardLayout);
         JButton loanCalculatorButton = new JButton("Loan Calculator");
         JButton mortgageCalculatorButton = new MortgageCalculatorGUI(this, cardPanel, cardLayout);
 
-        //functionality to switch back to home panel
+        //home button top left corner
+        JPanel homeButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        add(homeButtonPanel, BorderLayout.NORTH);
+        homeButtonPanel.add(homeButton);
+
+        //actionListener to switch back to home panel
         homeButton.addActionListener(e -> cardLayout.show(cardPanel, "Home"));
 
-        buttonPanel.add(homeButton);
+        //add buttons
         buttonPanel.add(accountsButton);
         buttonPanel.add(currencyExchangeButton);
         buttonPanel.add(loanCalculatorButton);
@@ -52,22 +58,3 @@ public class BankTellerGUI extends JFrame {
         SwingUtilities.invokeLater(() -> new BankTellerGUI().setVisible(true));
     }
 }
-
-/*
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-public class BookStoreMain {
-
-    public static void main(String[] args) throws SQLException {
-
-        BookStore bookstore = new BookStore();
-        bookstore.createPromotionTable();
-        ResultSet rs = bookstore.getWeekSpecial();
-        bookstore.createWeekSpecialTable(rs);
-
-    }
-}
-
-*/

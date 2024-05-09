@@ -1,13 +1,5 @@
 package bankingapplication;
 
-public class DBFunctions {
-    
-}
-
-/*
-
-package Task08_2;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 
@@ -17,13 +9,13 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class BookStore {
+public class DBFunctions {
 
     private final DBManager dbManager;
     private final Connection conn;
     private Statement statement;
 
-    public BookStore() {
+    public DBFunctions() {
         dbManager = new DBManager();
         conn = dbManager.getConnection();
     }
@@ -98,5 +90,3 @@ public class BookStore {
         }
     }
 }
-
-*/

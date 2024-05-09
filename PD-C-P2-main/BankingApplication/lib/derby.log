@@ -1,24 +1,7 @@
-Wed May 08 15:29:41 NZST 2024 : Apache Derby Network Server - 10.14.2.0 - (1828579) started and ready to accept connections on port 1527
+Thu May 09 19:14:18 NZST 2024 : Apache Derby Network Server - 10.14.2.0 - (1828579) started and ready to accept connections on port 1527
 ----------------------------------------------------------------
-Wed May 08 15:30:19 NZST 2024:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-018f-563f-eea6-fffff5f95734 
-on database directory C:\Users\disre\OneDrive\Documents\Personal\Important\Jack\Study\AUT\2nd Year\Semester 1\COMP603 - Program Design and Construction\Assignment - P2\PD-C-P2\PD-C-P2-main\BankingApplication\lib\BankTellerDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@30946e09 
-Loaded from file:/C:/Users/disre/OneDrive/Desktop/db-derby-10.14.2.0-bin/db-derby-10.14.2.0-bin/lib/derby.jar
-java.vendor=Oracle Corporation
-java.runtime.version=11.0.21+9-LTS-193
-user.dir=C:\Users\disre\OneDrive\Desktop\db-derby-10.14.2.0-bin\db-derby-10.14.2.0-bin
-os.name=Windows 11
-os.arch=amd64
-os.version=10.0
-derby.system.home=C:\Users\disre\OneDrive\Documents\Personal\Important\Jack\Study\AUT\2nd Year\Semester 1\COMP603 - Program Design and Construction\Assignment - P2\PD-C-P2\PD-C-P2-main\BankingApplication\lib
-Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-Wed May 08 15:30:19 NZST 2024:
-Shutting down instance a816c00e-018f-563f-eea6-fffff5f95734 on database directory C:\Users\disre\OneDrive\Documents\Personal\Important\Jack\Study\AUT\2nd Year\Semester 1\COMP603 - Program Design and Construction\Assignment - P2\PD-C-P2\PD-C-P2-main\BankingApplication\lib\BankTellerDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@30946e09 
-Wed May 08 15:30:19 NZST 2024 Thread[DRDAConnThread_3,5,main] (DATABASE = BankTellerDB), (DRDAID = {2}), Database 'BankTellerDB' shutdown.
-----------------------------------------------------------------
-Wed May 08 15:30:22 NZST 2024:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance 6ede40af-018f-563f-eea6-fffff5f95734 
+Thu May 09 19:14:22 NZST 2024:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-018f-5c33-edb3-fffff5f95734 
 on database directory C:\Users\disre\OneDrive\Documents\Personal\Important\Jack\Study\AUT\2nd Year\Semester 1\COMP603 - Program Design and Construction\Assignment - P2\PD-C-P2\PD-C-P2-main\BankingApplication\lib\BankTellerDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@30946e09 
 Loaded from file:/C:/Users/disre/OneDrive/Desktop/db-derby-10.14.2.0-bin/db-derby-10.14.2.0-bin/lib/derby.jar
 java.vendor=Oracle Corporation

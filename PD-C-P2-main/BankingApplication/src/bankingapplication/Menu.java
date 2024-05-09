@@ -239,8 +239,6 @@ public class Menu {
                     break;
                 case "8":
                     // Call calculate exchange method in CurrencyExchange.
-                    CurrencyExchange currencyExchange = new CurrencyExchange("currencies.txt");
-                    currencyExchange.calculateExchange();
                     break;
                 case "9":
                     // Call delete account method in Delete Account. Users must have empty balance in either account to delete the corrosponding account they want to delete.

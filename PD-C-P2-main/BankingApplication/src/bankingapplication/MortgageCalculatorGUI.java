@@ -31,7 +31,7 @@ public class MortgageCalculatorGUI extends JButton {
     private JPanel createMortgageCalculatorPanel() {
         JPanel panel = new JPanel(new GridLayout(6, 2));
 
-        JLabel loanAmountLabel = new JLabel("Loan Amount:");
+        JLabel loanAmountLabel = new JLabel("Loan Amount (numbers only):");
         JTextField loanAmountField = new JTextField(10);
 
         //length of loan
@@ -68,16 +68,15 @@ public class MortgageCalculatorGUI extends JButton {
             }
         });
 
-        //adding components to panel
         panel.add(loanAmountLabel);
         panel.add(loanAmountField);
         panel.add(lengthLabel);
         panel.add(lengthChoiceBox);
         panel.add(interestRateLabel);
         panel.add(interestRateField);
-        panel.add(new JLabel());  //placeholder for grid layout adjustment
+        panel.add(new JLabel());  
         panel.add(calculateButton);
-        panel.add(new JLabel("Monthly Payment: "));  //label for result
+        panel.add(new JLabel("Monthly Payment: ")); 
         panel.add(resultDisplay);
 
         return panel;
