@@ -6,8 +6,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DBFunctions {
 
@@ -20,6 +18,7 @@ public class DBFunctions {
         conn = dbManager.getConnection();
     }
 
+    /*
     public void connectBookStoreDB() {
         try {
             dbManager.establishConnection();
@@ -28,6 +27,7 @@ public class DBFunctions {
             System.err.println("Failed to connect to the database: " + e.getMessage());
         }
     }
+    */
 
     public void createPromotionTable() {
         try {

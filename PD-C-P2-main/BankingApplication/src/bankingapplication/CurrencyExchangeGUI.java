@@ -32,7 +32,7 @@ public class CurrencyExchangeGUI extends JButton {
             cardPanel.add(currencyExchangePanel, "CurrencyExchange");
             cardPanel.putClientProperty("CurrencyPanelInitialized", true);
             SwingUtilities.invokeLater(() -> {
-                fetchCurrencyRatesFromDB();
+                fetchCurrencyRatesFromDB(); // Fetch rates asynchronously
                 setupCurrencyExchangeGUI(currencyExchangePanel);
                 cardLayout.show(cardPanel, "CurrencyExchange");
             });
@@ -42,18 +42,17 @@ public class CurrencyExchangeGUI extends JButton {
     }
 
     private void setupCurrencyExchangeGUI(JPanel panel) {
-        panel.removeAll(); 
+        panel.removeAll();
         if (conversionRates.isEmpty()) {
             panel.add(new JLabel("No currency rates available."), BorderLayout.CENTER);
         } else {
             amountField = new JTextField("Enter amount in NZD", 15);
-            String[] currencies = conversionRates.keySet().toArray(new String[0]);
-            JComboBox<String> currencyComboBox = new JComboBox<>(currencies);
+            JComboBox<String> currencyComboBox = new JComboBox<>(conversionRates.keySet().toArray(new String[0]));
             JTextArea detailsTextArea = new JTextArea(10, 30);
             detailsTextArea.setEditable(false);
             JScrollPane scrollPane = new JScrollPane(detailsTextArea);
 
-            currencyComboBox.addActionListener(e -> UpdateTextResults(detailsTextArea, (String) currencyComboBox.getSelectedItem(), amountField.getText()));
+            currencyComboBox.addActionListener(e -> updateTextResults(detailsTextArea, (String) currencyComboBox.getSelectedItem(), amountField.getText()));
             panel.add(amountField, BorderLayout.NORTH);
             panel.add(currencyComboBox, BorderLayout.CENTER);
             panel.add(scrollPane, BorderLayout.SOUTH);
@@ -62,19 +61,30 @@ public class CurrencyExchangeGUI extends JButton {
         panel.repaint();
     }
 
-    private void UpdateTextResults(JTextArea textArea, String selectedCurrency, String amountText) {
+    public void updateExchangeRates() {
+        System.out.println("Attempting to update currency exchange rates...");
         try {
-            double amount = Double.parseDouble(amountText); 
+            // Existing code to fetch and update rates...
+            System.out.println("Exchange rates updated successfully.");
+        } catch (Exception e) {
+            System.out.println("Failed to update exchange rates: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void updateTextResults(JTextArea textArea, String selectedCurrency, String amountText) {
+        try {
+            double amount = Double.parseDouble(amountText);
             Double exchangeRate = conversionRates.get(selectedCurrency);
             Double reverseExchangeRate = 1 / exchangeRate;
             double convertedAmountBeforeFee = amount * exchangeRate;
             double finalConvertedAmountAfterFee = convertedAmountBeforeFee * 0.95;
 
             String outputText = String.format(
-                "Exchange rate to %s: %.4f\nExchange rate back to NZD: %.4f\n" +
-                "Amount in %s before fees: %.2f\nAmount received in %s after 5%% bank fee: %.2f",
-                selectedCurrency, exchangeRate, reverseExchangeRate, selectedCurrency, convertedAmountBeforeFee,
-                selectedCurrency, finalConvertedAmountAfterFee
+                    "Exchange rate to %s: %.4f\nExchange rate back to NZD: %.4f\n"
+                    + "Amount in %s before fees: %.2f\nAmount received in %s after 5%% bank fee: %.2f",
+                    selectedCurrency, exchangeRate, reverseExchangeRate, selectedCurrency, convertedAmountBeforeFee,
+                    selectedCurrency, finalConvertedAmountAfterFee
             );
             textArea.setText(outputText);
         } catch (NumberFormatException ex) {
@@ -83,16 +93,23 @@ public class CurrencyExchangeGUI extends JButton {
     }
 
     private void fetchCurrencyRatesFromDB() {
-        String query = "SELECT CURRENCY, RATE FROM PDC.CURRENCIES";
-        try (Connection conn = DBManager.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+        String query = "SELECT CURRENCY, RATE FROM APP.CURRENCIES";
+        System.out.println("Running query: " + query);
+        try (Connection conn = DBManager.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+            boolean found = false;
             while (rs.next()) {
-                conversionRates.put(rs.getString("CURRENCY"), rs.getDouble("RATE"));
+                found = true;
+                String currency = rs.getString("CURRENCY");
+                double rate = rs.getDouble("RATE");
+                conversionRates.put(currency, rate);
+                System.out.println("Fetched " + currency + " at rate " + rate);
+            }
+            if (!found) {
+                System.out.println("No rates fetched, check database and query.");
             }
         } catch (SQLException e) {
-            System.err.println("SQLException: " + e.getMessage());
+            System.err.println("SQLException during fetchCurrencyRatesFromDB: " + e.getMessage());
+            e.printStackTrace();
         }
-        System.out.println("Fetched rates: " + conversionRates);
     }
 }

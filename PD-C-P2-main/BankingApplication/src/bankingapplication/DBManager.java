@@ -2,97 +2,75 @@ package bankingapplication;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class DBManager {
 
     private static Connection conn;
-    private static final String USER_NAME = "pdc";  // DB username
-    private static final String PASSWORD = "pdc";  // DB password
-    private static final String URL = "jdbc:derby://localhost:1527/BankTellerDB";  // URL of the DB host
+    private static final String URL = "jdbc:derby:BankTellerDB;create=true";
 
     static {
         try {
-            //loads driver (incase error)
-            Class.forName("org.apache.derby.jdbc.ClientDriver");
+            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+            System.out.println("Derby driver loaded successfully.");
+            establishConnection();
         } catch (ClassNotFoundException e) {
-            System.err.println("Failed to load Derby driver.");
+            System.err.println("Derby driver not found.");
             e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Database connection could not be established on static initialization.");
+            printSQLException(e);
         }
     }
 
-    public DBManager() {
-        establishConnection();
-    }
-
-    public static void main(String[] args) {
-        DBManager dbManager = new DBManager();
-        System.out.println(dbManager.getConnection());
-    }
-
-    public static Connection getConnection() {
-        if (conn == null) {
-            try {
-                conn = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
-                System.out.println("Database connection established.");
-            } catch (SQLException ex) {
-                System.err.println("Failed to connect to the database: " + ex.getMessage());
-                return null;
+    public static synchronized Connection getConnection() {
+        try {
+            if (conn == null || conn.isClosed()) {
+                System.out.println("Re-establishing database connection...");
+                establishConnection();
             }
+        } catch (SQLException e) {
+            System.err.println("Failed to check or re-establish connection: " + e.getMessage());
+            printSQLException(e);
         }
         return conn;
     }
 
-    public static void establishConnection() {
-        try {
-            conn = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
-        } catch (SQLException ex) {
-            System.err.println("Failed to connect to the database: " + ex.getMessage());
-        }
+    private static void establishConnection() throws SQLException {
+        System.out.println("Attempting to establish database connection...");
+        System.out.println("Connection URL: " + URL);
+        conn = DriverManager.getConnection(URL);
+        System.out.println("Database connection established at " + conn.getMetaData().getURL());
     }
 
-    public void closeConnections() {
-        if (conn != null) {
-            try {
+    public static void shutdownDatabase() {
+        try {
+            if (conn != null) {
+                System.out.println("Closing database connection...");
                 conn.close();
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
+            }
+            DriverManager.getConnection("jdbc:derby:;shutdown=true");
+        } catch (SQLException ex) {
+            if (!ex.getSQLState().equals("XJ015")) {
+                System.err.println("Database did not shut down normally: " + ex.getMessage());
+            } else {
+                System.out.println("Database shut down normally.");
             }
         }
     }
 
-    public static ResultSet queryDB(String sql) {
-        if (conn == null) {
-            System.out.println("No connection established. Trying to reconnect...");
-            establishConnection();
-            if (conn == null) {
-                System.out.println("Still no connection.");
-                return null;
+    private static void printSQLException(SQLException ex) {
+        for (Throwable e : ex) {
+            if (e instanceof SQLException) {
+                System.err.println("SQLException encountered: " + e.getMessage());
+                System.err.println("SQLState: " + ((SQLException) e).getSQLState());
+                System.err.println("Error Code: " + ((SQLException) e).getErrorCode());
+                Throwable t = ex.getCause();
+                while (t != null) {
+                    System.err.println("Cause: " + t);
+                    t = t.getCause();
+                }
             }
-        }
-
-        try (Statement statement = conn.createStatement()) {
-            return statement.executeQuery(sql);
-        } catch (SQLException ex) {
-            System.err.println("Query failed: " + ex.getMessage());
-            return null;
-        }
-    }
-
-    public void updateDB(String sql) {
-
-        Connection connection = this.conn;
-        Statement statement = null;
-        ResultSet resultSet = null;
-
-        try {
-            statement = connection.createStatement();
-            statement.executeUpdate(sql);
-
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
         }
     }
 }
