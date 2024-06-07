@@ -19,7 +19,7 @@ public class MortgageCalculatorGUI extends JButton {
     }
 
     private void actionPerformed(ActionEvent e) {
-        //initialise panel for the mortgage calculator once
+        // Initialize panel for the mortgage calculator once
         if (null == cardPanel.getClientProperty("MortgagePanelInitialized")) {
             JPanel mortgagePanel = createMortgageCalculatorPanel();
             cardPanel.add(mortgagePanel, "MortgageCalculator");
@@ -31,23 +31,23 @@ public class MortgageCalculatorGUI extends JButton {
     private JPanel createMortgageCalculatorPanel() {
         JPanel panel = new JPanel(new GridLayout(6, 2));
 
-        JLabel loanAmountLabel = new JLabel("Loan Amount:");
+        JLabel loanAmountLabel = new JLabel("Loan Amount (numbers only):");
         JTextField loanAmountField = new JTextField(10);
 
-        //length of loan
+        // Length of loan
         JLabel lengthLabel = new JLabel("Length (Years):");
         JComboBox<Integer> lengthChoiceBox = new JComboBox<>(new Integer[]{15, 20, 30});
 
-        //annual interest rate
+        // Annual interest rate
         JLabel interestRateLabel = new JLabel("Annual Interest Rate (%):");
         JTextField interestRateField = new JTextField(10);
 
-        //displaying results
+        // Displaying results
         JLabel resultLabel = new JLabel("Monthly Payment: ");
         JTextField resultDisplay = new JTextField(10);
-        resultDisplay.setEditable(false);  //display field read-only
+        resultDisplay.setEditable(false);  // Display field read-only
 
-        //calculate button
+        // Calculate button
         JButton calculateButton = new JButton("Calculate");
         calculateButton.addActionListener(e -> {
             try {
@@ -68,16 +68,15 @@ public class MortgageCalculatorGUI extends JButton {
             }
         });
 
-        //adding components to panel
         panel.add(loanAmountLabel);
         panel.add(loanAmountField);
         panel.add(lengthLabel);
         panel.add(lengthChoiceBox);
         panel.add(interestRateLabel);
         panel.add(interestRateField);
-        panel.add(new JLabel());  //placeholder for grid layout adjustment
+        panel.add(new JLabel());  
         panel.add(calculateButton);
-        panel.add(new JLabel("Monthly Payment: "));  //label for result
+        panel.add(new JLabel("Monthly Payment: ")); 
         panel.add(resultDisplay);
 
         return panel;

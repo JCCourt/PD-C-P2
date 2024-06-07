@@ -1,25 +1,24 @@
-// Group 10 (2 People) however 100% of code in project written by (Jack Courtenay - SID: 22179753) because team member wouldn't communicate
 package bankingapplication;
 
-import java.util.Map;
 import java.util.Scanner;
 
 public class LoanCalculator {
 
-    private FileIO fileIO;
+    private DBFunctions dbFunctions;
 
-    public LoanCalculator(String fileName) {
-        this.fileIO = new FileIO(fileName);
+    public LoanCalculator() {
+        this.dbFunctions = new DBFunctions();
     }
 
     public void calculateMoneyLoan() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter name to check eligibility: ");
-        String name = scanner.nextLine();
+        System.out.print("Enter first name to check eligibility: ");
+        String firstName = scanner.nextLine();
+        System.out.print("Enter last name to check eligibility: ");
+        String lastName = scanner.nextLine();
 
-        // Map to read regular account balances to check if persons balance is enough
-        Map<String, Double> accountBalances = fileIO.readRegularAccounts();
-        if (accountBalances.containsKey(name) && accountBalances.get(name) >= 1000) {
+        double balance = dbFunctions.getBalance(firstName, lastName);
+        if (balance >= 1000) {
             System.out.println("They are eligible to get a loan.");
             System.out.print("Enter the amount they want to take out: ");
             double loanAmountRequested = scanner.nextDouble();
@@ -34,8 +33,8 @@ public class LoanCalculator {
             int totalPayments = loanLength * 12;
 
             double monthlyPayment = loanAmountRequested
-                    // Math.pow to calculate power of a given number.
-                    * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, totalPayments)) / (Math.pow(1 + monthlyInterestRate, totalPayments) - 1);
+                    * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, totalPayments))
+                    / (Math.pow(1 + monthlyInterestRate, totalPayments) - 1);
 
             double totalRepayment = monthlyPayment * totalPayments;
 

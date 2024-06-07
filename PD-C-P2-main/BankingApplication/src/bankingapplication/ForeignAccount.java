@@ -1,10 +1,9 @@
-// Group 10 (2 People) however 100% of code in project written by (Jack Courtenay - SID: 22179753) because team member wouldn't communicate
 package bankingapplication;
 
 import java.util.HashMap;
 import java.util.Map;
 
-// Foreign account extends the account class to superclass the name from account
+// Foreign account extends account class to superclass the name from account
 public class ForeignAccount extends Account {
 
     // Hashmap used for balances using String and Double to store currency text and balance
@@ -47,5 +46,4 @@ public class ForeignAccount extends Account {
     public void addNewCurrencyToBalance(String currency, Double balance) {
         currencyBalances.merge(currency, balance, Double::sum);
     }
-
 }
