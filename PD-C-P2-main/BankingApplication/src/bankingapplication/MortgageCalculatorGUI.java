@@ -19,7 +19,7 @@ public class MortgageCalculatorGUI extends JButton {
     }
 
     private void actionPerformed(ActionEvent e) {
-        //initialise panel for the mortgage calculator once
+        // Initialize panel for the mortgage calculator once
         if (null == cardPanel.getClientProperty("MortgagePanelInitialized")) {
             JPanel mortgagePanel = createMortgageCalculatorPanel();
             cardPanel.add(mortgagePanel, "MortgageCalculator");
@@ -34,20 +34,20 @@ public class MortgageCalculatorGUI extends JButton {
         JLabel loanAmountLabel = new JLabel("Loan Amount (numbers only):");
         JTextField loanAmountField = new JTextField(10);
 
-        //length of loan
+        // Length of loan
         JLabel lengthLabel = new JLabel("Length (Years):");
         JComboBox<Integer> lengthChoiceBox = new JComboBox<>(new Integer[]{15, 20, 30});
 
-        //annual interest rate
+        // Annual interest rate
         JLabel interestRateLabel = new JLabel("Annual Interest Rate (%):");
         JTextField interestRateField = new JTextField(10);
 
-        //displaying results
+        // Displaying results
         JLabel resultLabel = new JLabel("Monthly Payment: ");
         JTextField resultDisplay = new JTextField(10);
-        resultDisplay.setEditable(false);  //display field read-only
+        resultDisplay.setEditable(false);  // Display field read-only
 
-        //calculate button
+        // Calculate button
         JButton calculateButton = new JButton("Calculate");
         calculateButton.addActionListener(e -> {
             try {

@@ -1,92 +1,230 @@
 package bankingapplication;
 
+import javax.swing.JOptionPane;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DBFunctions {
 
-    private final DBManager dbManager;
-    private final Connection conn;
-    private Statement statement;
+    private static final String URL = "jdbc:derby:BankTellerDB;create=true"; // Embedded mode connection URL
+    private Connection connection;
 
     public DBFunctions() {
-        dbManager = new DBManager();
-        conn = dbManager.getConnection();
-    }
-
-    /*
-    public void connectBookStoreDB() {
         try {
-            dbManager.establishConnection();
-            System.out.println("Database connected successfully.");
-        } catch (Exception e) {
-            System.err.println("Failed to connect to the database: " + e.getMessage());
-        }
-    }
-    */
-
-    public void createPromotionTable() {
-        try {
-            dropTableIfExists("PROMOTION");
-            statement = conn.createStatement();
-            String createTableSQL = "CREATE TABLE PROMOTION (CATEGORY VARCHAR(20), DISCOUNT INT)";
-            statement.executeUpdate(createTableSQL);
-            System.out.println("PROMOTION table created successfully.");
-
-            String insertDataSQL = "INSERT INTO PROMOTION VALUES ('Fiction', 0), ('Non-fiction', 10), ('Textbook', 30)";
-            statement.executeUpdate(insertDataSQL);
-            System.out.println("Data inserted into PROMOTION table successfully.");
+            connection = DriverManager.getConnection(URL);
         } catch (SQLException e) {
-            System.err.println("Error creating or populating the PROMOTION table: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    public ResultSet getWeekSpecial() throws SQLException {
-        ResultSet rs = null;
-        try {
-            String query = "SELECT BOOK.TITLE, BOOK.PRICE, PROMOTION.DISCOUNT, (BOOK.PRICE * (1 - PROMOTION.DISCOUNT / 100.0)) AS SPECIAL_PRICE FROM BOOK JOIN PROMOTION ON BOOK.CATEGORY = PROMOTION.CATEGORY";
-            statement = conn.createStatement();
-            rs = statement.executeQuery(query);
-            System.out.println("Week specials retrieved successfully.");
+    public void addAccount(String firstName, String lastName, double balance) {
+        String query = "INSERT INTO APP.ACCOUNTS (FIRSTNAME, LASTNAME, BALANCE) VALUES (?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, firstName);
+            statement.setString(2, lastName);
+            statement.setDouble(3, balance);
+            statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error fetching week specials: " + e.getMessage());
+            e.printStackTrace();
         }
-        return rs;
     }
 
-    public void createWeekSpecialTable(ResultSet rs) {
-        try {
-            dropTableIfExists("WEEK_SPECIAL");
-            statement = conn.createStatement();
-            statement.executeUpdate("CREATE TABLE WEEK_SPECIAL (TITLE VARCHAR(100), SPECIAL_PRICE DECIMAL(10, 2))");
+    public void addForeignAccount(String firstName, String lastName, double initialBalance, String currency) {
+        String query = "INSERT INTO APP.FOREIGNACCOUNTS (FIRSTNAME, LASTNAME, AUD, USD, GBP, EUR, JPY) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, firstName);
+            statement.setString(2, lastName);
+            statement.setDouble(3, currency.equals("AUD") ? initialBalance : 0.0);
+            statement.setDouble(4, currency.equals("USD") ? initialBalance : 0.0);
+            statement.setDouble(5, currency.equals("GBP") ? initialBalance : 0.0);
+            statement.setDouble(6, currency.equals("EUR") ? initialBalance : 0.0);
+            statement.setDouble(7, currency.equals("JPY") ? initialBalance : 0.0);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-            while (rs.next()) {
-                String title = rs.getString("TITLE");
-                double specialPrice = rs.getDouble("SPECIAL_PRICE");
-                statement.executeUpdate(String.format("INSERT INTO WEEK_SPECIAL VALUES ('%s', %.2f)", title, specialPrice));
+    public void deleteAccount(String firstName, String lastName, boolean isForeign) {
+        String query = isForeign 
+            ? "DELETE FROM APP.FOREIGNACCOUNTS WHERE FIRSTNAME = ? AND LASTNAME = ?"
+            : "DELETE FROM APP.ACCOUNTS WHERE FIRSTNAME = ? AND LASTNAME = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, firstName);
+            statement.setString(2, lastName);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deposit(String firstName, String lastName, double amount) {
+        String query = "UPDATE APP.ACCOUNTS SET BALANCE = BALANCE + ? WHERE FIRSTNAME = ? AND LASTNAME = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setDouble(1, amount);
+            statement.setString(2, firstName);
+            statement.setString(3, lastName);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deposit(String firstName, String lastName, double amount, String currency) {
+        String query = "UPDATE APP.FOREIGNACCOUNTS SET " + currency + " = " + currency + " + ? WHERE FIRSTNAME = ? AND LASTNAME = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setDouble(1, amount);
+            statement.setString(2, firstName);
+            statement.setString(3, lastName);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean withdraw(String firstName, String lastName, double amount) {
+        Account account = getAccount(firstName, lastName);
+        if (account != null && account.getBalance() >= amount) {
+            String query = "UPDATE APP.ACCOUNTS SET BALANCE = BALANCE - ? WHERE FIRSTNAME = ? AND LASTNAME = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setDouble(1, amount);
+                statement.setString(2, firstName);
+                statement.setString(3, lastName);
+                statement.executeUpdate();
+                return true;
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-            System.out.println("WEEK_SPECIAL table created and populated successfully.");
+        }
+        return false;
+    }
+
+    public boolean withdrawForeignAccount(String firstName, String lastName, double amount, String currency) {
+        ForeignAccount account = getForeignAccount(firstName, lastName);
+        if (account != null && account.getCurrencyBalances().getOrDefault(currency, 0.0) >= amount) {
+            String query = "UPDATE APP.FOREIGNACCOUNTS SET " + currency + " = " + currency + " - ? WHERE FIRSTNAME = ? AND LASTNAME = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setDouble(1, amount);
+                statement.setString(2, firstName);
+                statement.setString(3, lastName);
+                statement.executeUpdate();
+                return true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    public Account getAccount(String firstName, String lastName) {
+        String query = "SELECT * FROM APP.ACCOUNTS WHERE FIRSTNAME = ? AND LASTNAME = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, firstName);
+            statement.setString(2, lastName);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    double balance = resultSet.getDouble("BALANCE");
+                    return new Account(firstName + " " + lastName, balance);
+                }
+            }
         } catch (SQLException e) {
-            System.err.println("Error creating WEEK_SPECIAL table: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public ForeignAccount getForeignAccount(String firstName, String lastName) {
+        String query = "SELECT * FROM APP.FOREIGNACCOUNTS WHERE FIRSTNAME = ? AND LASTNAME = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, firstName);
+            statement.setString(2, lastName);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    ForeignAccount account = new ForeignAccount(firstName + " " + lastName);
+                    account.deposit(resultSet.getDouble("AUD"), "AUD");
+                    account.deposit(resultSet.getDouble("USD"), "USD");
+                    account.deposit(resultSet.getDouble("GBP"), "GBP");
+                    account.deposit(resultSet.getDouble("EUR"), "EUR");
+                    account.deposit(resultSet.getDouble("JPY"), "JPY");
+                    return account;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void transfer(String fromFirstName, String fromLastName, String toFirstName, String toLastName, double amount) {
+        try {
+            connection.setAutoCommit(false);
+            if (withdraw(fromFirstName, fromLastName, amount)) {
+                deposit(toFirstName, toLastName, amount);
+                connection.commit();
+            } else {
+                connection.rollback();
+                JOptionPane.showMessageDialog(null, "Insufficient funds for transfer.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void dropTableIfExists(String tableName) {
+    public void transferForeign(String fromFirstName, String fromLastName, String toFirstName, String toLastName, double amount, String currency) {
         try {
-            DatabaseMetaData dbm = conn.getMetaData();
-            ResultSet rs = dbm.getTables(null, null, tableName.toUpperCase(), null);
-            statement = conn.createStatement();
-            if (rs.next()) {
-                statement.executeUpdate("DROP TABLE " + tableName);
-                System.out.println(tableName + " table dropped successfully.");
+            connection.setAutoCommit(false);
+            if (withdrawForeignAccount(fromFirstName, fromLastName, amount, currency)) {
+                deposit(toFirstName, toLastName, amount, currency);
+                connection.commit();
+            } else {
+                connection.rollback();
+                JOptionPane.showMessageDialog(null, "Insufficient funds for transfer.");
             }
-            rs.close();
         } catch (SQLException e) {
-            System.err.println("Error dropping " + tableName + " table: " + e.getMessage());
+            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    public double getBalance(String firstName, String lastName) {
+        Account account = getAccount(firstName, lastName);
+        if (account != null) {
+            return account.getBalance();
+        }
+        return 0.0;
+    }
+
+    public Map<String, Double> getForeignBalance(String firstName, String lastName) {
+        ForeignAccount account = getForeignAccount(firstName, lastName);
+        if (account != null) {
+            return account.getCurrencyBalances();
+        }
+        return new HashMap<>();
     }
 }

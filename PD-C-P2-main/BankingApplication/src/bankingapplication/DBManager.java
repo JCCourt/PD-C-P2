@@ -16,7 +16,6 @@ public class DBManager {
             establishConnection();
         } catch (ClassNotFoundException e) {
             System.err.println("Derby driver not found.");
-            e.printStackTrace();
         } catch (SQLException e) {
             System.err.println("Database connection could not be established on static initialization.");
             printSQLException(e);
